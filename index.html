@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>THE FLOW — Join the Revolution</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: #05070a;
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        /* Ambient Glow Background */
+        body::before {
+            content: "";
+            position: fixed;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.15), rgba(0, 0, 0, 0) 70%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        header {
+            width: 100%;
+            padding: 80px 40px 60px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: clamp(3rem, 8vw, 5.5rem);
+            font-weight: 900;
+            letter-spacing: -3px;
+            background: linear-gradient(135deg, #10b981, #3b82f6, #a855f7);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+            line-height: 1;
+        }
+
+        .sub {
+            color: #94a3b8;
+            font-size: 1.25rem;
+            font-weight: 300;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.6;
+            letter-spacing: 0.01em;
+        }
+
+        .app-container {
+            display: flex;
+            gap: 30px;
+            padding: 0 40px 80px;
+            width: 100%;
+            max-width: 1200px;
+            align-items: stretch;
+            /* Asegura misma altura */
+            flex-wrap: wrap;
+        }
+
+        /* Canvas Display */
+        .canvas-wrap {
+            flex: 1.2;
+            min-width: 400px;
+            position: relative;
+            border-radius: 28px;
+            overflow: hidden;
+            background: #0d1117;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 30px 100px rgba(0, 0, 0, 0.6), 0 0 60px rgba(16, 185, 129, 0.08);
+            aspect-ratio: 1;
+        }
+
+        #manifold-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            image-rendering: auto;
+        }
+
+        .placeholder {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #475569;
+            gap: 12px;
+            pointer-events: none;
+        }
+
+        /* Control Panel */
+        .panel {
+            width: 380px;
+            flex-shrink: 0;
+            background: rgba(13, 18, 30, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 28px;
+            padding: 40px;
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            /* Distribuye elementos para ocupar toda la altura */
+            gap: 20px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.4);
+        }
+
+        .waitlist-section {
+            background: rgba(16, 185, 129, 0.05);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .waitlist-section h2 {
+            font-size: 1rem;
+            color: #10b981;
+            margin-bottom: 8px;
+        }
+
+        .waitlist-section p {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-bottom: 16px;
+            line-height: 1.4;
+        }
+
+        .waitlist-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .waitlist-form input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 12px 14px;
+            color: #fff;
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .waitlist-form input:focus {
+            border-color: #10b981;
+        }
+
+        .waitlist-form button {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #10b981, #3b82f6);
+            color: white;
+            transition: opacity 0.2s, transform 0.15s;
+        }
+
+        .waitlist-form button:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .waitlist-form button:active {
+            transform: translateY(0);
+        }
+
+        .divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .mixer-title {
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #94a3b8;
+        }
+
+        .slider-group {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .slider-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .slider-label-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .slider-name {
+            font-size: 0.85rem;
+            color: #e2e8f0;
+            font-weight: 500;
+        }
+
+        .slider-val {
+            font-size: 0.82rem;
+            color: #10b981;
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+        }
+
+        input[type=range] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 99px;
+            outline: none;
+            cursor: grab;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: white;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+            cursor: grab;
+            transition: transform 0.1s;
+        }
+
+        input[type=range]::-webkit-slider-thumb:active {
+            transform: scale(1.3);
+            cursor: grabbing;
+        }
+
+        .status-bar {
+            padding: 12px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.8rem;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .loading {
+            color: #fbbf24;
+        }
+
+        .ready {
+            color: #3b82f6;
+        }
+
+        /* Botón REC superpuesto */
+        #rec-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(10, 12, 20, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #f87171;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 700;
+            padding: 10px 16px;
+            border-radius: 99px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            backdrop-filter: blur(10px);
+            transition: 0.2s;
+        }
+
+        #rec-btn:hover {
+            background: rgba(0, 0, 0, 0.9);
+            border-color: #f87171;
+        }
+
+        #rec-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #f87171;
+            display: inline-block;
+        }
+
+        .export-btns {
+            display: flex;
+            gap: 10px;
+        }
+
+        .export-btns button {
+            flex: 1;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.04);
+            color: #e2e8f0;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .export-btns button:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>THE FLOW</h1>
+        <p class="sub">A new paradigm in audiovisual synthesis powered by Generative AI.<br>Fluidly navigate through the
+            latent images and sculpt motion.</p>
+    </header>
+
+    <div class="app-container">
+
+        <!-- Canvas -->
+        <div class="canvas-wrap" id="canvas-wrap">
+            <canvas id="manifold-canvas" width="768" height="768"></canvas>
+            <div class="placeholder" id="placeholder">
+                Awakening the manifold...
+            </div>
+
+            <button id="rec-btn" title="Record motion">
+                <span id="rec-dot"></span>
+                <span id="rec-label">RECORD</span>
+            </button>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="panel">
+
+            <div class="waitlist-section">
+                <h2>🔥 Join the Future</h2>
+                <p>We are redefining how you interact with AI. Join the waitlist for early access to the full generative
+                    suite.</p>
+                <form class="waitlist-form" id="waitlist-form">
+                    <input type="email" id="email" placeholder="Enter your email" required>
+                    <button type="submit" id="submit-btn">Get Early Access</button>
+                </form>
+                <div id="waitlist-msg" style="font-size: 0.75rem; margin-top: 10px; color: #10b981; display: none;">✅
+                    You are in. Welcome to the flow.</div>
+            </div>
+
+            <div class="divider"></div>
+
+            <span class="mixer-title">🎛 Generative Control</span>
+
+            <div class="slider-group">
+                <div class="slider-row">
+                    <div class="slider-label-row">
+                        <span class="slider-name">Structural Coherence</span>
+                        <span class="slider-val" id="alpha-val">1.00</span>
+                    </div>
+                    <input type="range" id="alpha-slider" min="0.0" max="1.0" step="0.001" value="0.5" />
+                </div>
+
+                <div class="slider-row">
+                    <div class="slider-label-row">
+                        <span class="slider-name">Visual Complexity</span>
+                        <span class="slider-val" id="beta-val">1.00</span>
+                    </div>
+                    <input type="range" id="beta-slider" min="0.0" max="1.0" step="0.001" value="0.5" />
+                </div>
+            </div>
+
+            <div class="export-btns">
+                <button id="save-canvas-btn" title="Descarga lo que ves ahora en el canvas">💾 Save Frame
+                    (.png)</button>
+            </div>
+
+            <div class="status-bar" id="status">Syncing with the latent flow...</div>
+
+        </div>
+
+    </div>
+
+    <script>
+        // ─────────── Local Waitlist Logic ───────────
+        document.getElementById('waitlist-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const btn = document.getElementById('submit-btn');
+
+            btn.textContent = "Joining...";
+            btn.disabled = true;
+
+            try {
+                // En un futuro cambiarás esto a fetch('https://tu-dominio.com/subscribe', ...)
+                const response = await fetch('/subscribe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+
+                // Simular éxito incluso si el endpoint no existe localmente ahora mismo (para la UX)
+                document.getElementById('waitlist-form').style.display = 'none';
+                document.getElementById('waitlist-msg').style.display = 'block';
+            } catch (err) {
+                console.error(err);
+                btn.textContent = "Try again";
+                btn.disabled = false;
+                alert("Waitlist endpoint not ready, but the UI works! Email: " + email);
+            }
+        });
+
+        // ─────────── State ───────────
+        const GRID_SIZE = 5;
+        let imageCache = [];   // HTMLImageElement array, size = 25
+        let imageDataCache = []; // ImageData array for pixel-level blending
+
+        const canvas = document.getElementById('manifold-canvas');
+        const ctx = canvas.getContext('2d');
+        const placeholder = document.getElementById('placeholder');
+        const statusEl = document.getElementById('status');
+
+        function setStatus(msg, cls = '') {
+            statusEl.textContent = msg;
+            statusEl.className = 'status-bar ' + cls;
+        }
+
+        // ─────────── Bilinear Canvas Blend ───────────
+        function bilinearBlend(d00, d10, d01, d11, tx, ty) {
+            const w00 = (1 - tx) * (1 - ty);
+            const w10 = tx * (1 - ty);
+            const w01 = (1 - tx) * ty;
+            const w11 = tx * ty;
+
+            const len = d00.data.length;
+            const out = ctx.createImageData(canvas.width, canvas.height);
+
+            for (let i = 0; i < len; i++) {
+                out.data[i] = (d00.data[i] * w00 + d10.data[i] * w10 +
+                    d01.data[i] * w01 + d11.data[i] * w11) | 0;
+            }
+            return out;
+        }
+
+        function getImageData(img) {
+            const oc = new OffscreenCanvas(canvas.width, canvas.height);
+            const octx = oc.getContext('2d');
+            octx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            return octx.getImageData(0, 0, canvas.width, canvas.height);
+        }
+
+        // ─────────── Render Slider ───────────
+        let rafId = null;
+        function render() {
+            if (imageDataCache.length === 0) return;
+            cancelAnimationFrame(rafId);
+
+            rafId = requestAnimationFrame(() => {
+                const alpha = parseFloat(document.getElementById('alpha-slider').value); // 0.0 to 1.0
+                const beta = parseFloat(document.getElementById('beta-slider').value);   // 0.0 to 1.0
+
+                const n = GRID_SIZE;
+
+                const aPos = alpha * (n - 1);
+                const bPos = beta * (n - 1);
+
+                const a0 = Math.floor(Math.min(Math.max(aPos, 0), n - 2));
+                const b0 = Math.floor(Math.min(Math.max(bPos, 0), n - 2));
+                const a1 = a0 + 1;
+                const b1 = b0 + 1;
+
+                const tx = aPos - a0;
+                const ty = bPos - b0;
+
+                const idx = (ai, bi) => bi * n + ai;
+
+                const blended = bilinearBlend(
+                    imageDataCache[idx(a0, b0)],
+                    imageDataCache[idx(a1, b0)],
+                    imageDataCache[idx(a0, b1)],
+                    imageDataCache[idx(a1, b1)],
+                    tx, ty
+                );
+
+                ctx.putImageData(blended, 0, 0);
+            });
+        }
+
+        // ─────────── Load Fake Bake (Demo) ───────────
+        async function initDemo() {
+            try {
+                setStatus('Materializing latent possibilities...', 'loading');
+
+                const promises = [];
+                for (let bi = 0; bi < GRID_SIZE; bi++) {
+                    for (let ai = 0; ai < GRID_SIZE; ai++) {
+                        promises.push(new Promise((resolve, reject) => {
+                            const img = new Image();
+                            img.onload = () => resolve(img);
+                            img.onerror = () => reject(new Error(`Failed to load img_a${String(ai).padStart(2, '0')}_b${String(bi).padStart(2, '0')}.jpg`));
+                            // Apunta a la carpeta estática "demo-grid" copiada de outputs
+                            img.src = `demo-grid/img_a${String(ai).padStart(2, '0')}_b${String(bi).padStart(2, '0')}.jpg`;
+                        }));
+                    }
+                }
+
+                imageCache = await Promise.all(promises);
+                setStatus('Aligning infinite frequencies...', 'loading');
+
+                // Wait a tick for UI update
+                await new Promise(r => setTimeout(r, 50));
+
+                imageDataCache = imageCache.map(img => getImageData(img));
+
+                placeholder.style.display = 'none';
+                render(); // Render initial frame
+
+                setStatus('✅ Synthesis active. Explore the manifold.', 'ready');
+            } catch (err) {
+                console.error(err);
+                setStatus('❌ Demo failed to load: ' + err.message);
+                placeholder.innerHTML = "Cannot load demo images.<br>Check /demo-grid/ folder.";
+            }
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', initDemo);
+
+        // ─────────── Event Bindings ───────────
+        const alphaSlider = document.getElementById('alpha-slider');
+        const betaSlider = document.getElementById('beta-slider');
+
+        alphaSlider.addEventListener('input', () => {
+            document.getElementById('alpha-val').textContent = parseFloat(alphaSlider.value).toFixed(2);
+            render();
+        });
+
+        betaSlider.addEventListener('input', () => {
+            document.getElementById('beta-val').textContent = parseFloat(betaSlider.value).toFixed(2);
+            render();
+        });
+
+        // ─────────── Save Frame  ───────────
+        document.getElementById('save-canvas-btn').addEventListener('click', () => {
+            if (imageDataCache.length === 0) return;
+            const a = document.createElement('a');
+            a.download = `flow_demo_frame_${Date.now()}.png`;
+            a.href = canvas.toDataURL('image/png');
+            a.click();
+        });
+
+        // ─────────── Canvas Recording (MediaRecorder API) ───────────
+        let mediaRecorder = null;
+        let recordedChunks = [];
+        let recInterval = null;
+
+        const recBtn = document.getElementById('rec-btn');
+        const recDot = document.getElementById('rec-dot');
+        const recLabel = document.getElementById('rec-label');
+
+        function startRecording() {
+            // Capturamos el canvas a 60fps para fluidez extrema
+            const stream = canvas.captureStream(60);
+
+            const mimeType = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm']
+                .find(t => MediaRecorder.isTypeSupported(t)) || 'video/webm';
+
+            mediaRecorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 16_000_000 });
+
+            mediaRecorder.ondataavailable = e => {
+                if (e.data && e.data.size > 0) recordedChunks.push(e.data);
+            };
+
+            mediaRecorder.onstop = () => {
+                const blob = new Blob(recordedChunks, { type: mimeType });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `flow_demo_${Date.now()}.webm`;
+                a.click();
+                URL.revokeObjectURL(url);
+                setStatus('✅ Frame captured!', 'ready');
+            };
+
+            recordedChunks = [];
+            mediaRecorder.start(100);
+
+            recBtn.style.background = 'rgba(239, 68, 68, 0.2)';
+            recBtn.style.color = 'white';
+            recBtn.style.borderColor = '#ef4444';
+            recLabel.textContent = 'STOP';
+            recInterval = setInterval(() => {
+                recDot.style.opacity = recDot.style.opacity === '0' ? '1' : '0';
+            }, 500);
+
+            setStatus('⏺ Recording journey...', 'loading');
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+            }
+            clearInterval(recInterval);
+            recDot.style.opacity = '1';
+            recLabel.textContent = 'REC';
+            recBtn.style.background = 'rgba(10, 12, 20, 0.7)';
+            recBtn.style.color = '#f87171';
+            recBtn.style.borderColor = 'rgba(255,255,255,0.15)';
+        }
+
+        recBtn.addEventListener('click', () => {
+            if (imageDataCache.length === 0) return;
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                stopRecording();
+            } else {
+                startRecording();
+            }
+        });
+    </script>
+
+</body>
+
+</html>

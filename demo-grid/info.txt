@@ -1,0 +1,4 @@
+Prompt: close-up of a blue eye, centered
+Seeds: [64206, 27802, 74901, 98669]
+Grid: 5x5
+Date: 20260416_013623
